@@ -106,6 +106,9 @@ export default function MascotAvatar({ mascot, size = 96, onTalk }: Props) {
   };
 
   const config = MASCOT_CONFIG[mascot];
+   const mascotSrc = import.meta.env.BASE_URL
+      ? `${import.meta.env.BASE_URL}mascots/${config.file}`.replace(/\/+/g, '/')
+       : `/mascots/${config.file}`;
     // 动态计算 base URL，适配 GitHub Pages 子路径部署
   const mascotSrc = import.meta.env.BASE_URL
     ? `${import.meta.env.BASE_URL}mascots/${config.file}`.replace(/\/+/g, '/')
