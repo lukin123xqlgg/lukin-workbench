@@ -5,7 +5,8 @@ import { useExamStore } from '../../store/examStore';
 import { usePomodoroStore } from '../../store/pomodoroStore';
 import { useCheckinStore } from '../../store/checkinStore';
 import { usePracticeStore, usePlanStore, useReviewStore, useMistakeStore } from '../../store';
-import { useThemeStore, MASCOTS } from '../../store/themeStore';
+import { useThemeStore } from '../../store/themeStore';
+import MascotAvatar from '../common/MascotAvatar';
 import {
   SUBJECTS,
   SUBJECT_MAP,
@@ -142,9 +143,12 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
         }}
       >
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">lukin的工作台 {MASCOTS[mascot].emoji}</h1>
-            <p className="text-sm text-gray-500 mt-1">{formatChineseDate(new Date())}</p>
+          <div className="flex items-center gap-2">
+            <MascotAvatar mascot={mascot} size={56} />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">lukin的工作台</h1>
+              <p className="text-sm text-gray-500 mt-1">{formatChineseDate(new Date())}</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button
