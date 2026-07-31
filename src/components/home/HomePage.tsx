@@ -487,20 +487,20 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
             <div className="flex gap-2 flex-wrap items-center">
               <PhotoCapture
                 onCaptured={(base64) =>
-                  setReviewAttachments((prev) => [
-                    ...prev,
+                  setReviewAttachments((p) => [
+                    ...p,
                     { type: 'photo', image: base64 } as MistakePhotoNote,
                   ])
                 }
               />
               <VoiceRecorder
                 onRecorded={(note) =>
-                  setReviewAttachments((prev) => [...prev, note])
+                  setReviewAttachments((p) => [...p, note])
                 }
               />
               <VoiceToText
                 onTranscript={(text) =>
-                  setReviewKnowledge((prev) => (prev ? prev + '\n' + text : text))
+                  setReviewKnowledge((p) => (p ? p + '\n' + text : text))
                 }
               />
             </div>
@@ -522,7 +522,7 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
                     )}
                     <button
                       onClick={() =>
-                        setReviewAttachments((prev) => prev.filter((_, idx) => idx !== i))
+                        setReviewAttachments((p) => p.filter((_, idx) => idx !== i))
                       }
                       className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-400 text-white flex items-center justify-center text-xs"
                     >
@@ -635,6 +635,3 @@ function ExamAddModal({ open, onClose, onAdd }: {
     </CenterModal>
   );
 }
-
-  
-
