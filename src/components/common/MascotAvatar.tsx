@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+
 // 扩展 mascot 类型：加入小狗、熊猫、企鹅
 export type MascotKey = 'bear' | 'rabbit' | 'cat' | 'chick' | 'dog' | 'panda' | 'penguin';
 
@@ -106,13 +107,12 @@ export default function MascotAvatar({ mascot, size = 96, onTalk }: Props) {
   };
 
   const config = MASCOT_CONFIG[mascot];
-   const mascotSrc = import.meta.env.BASE_URL
-      ? `${import.meta.env.BASE_URL}mascots/${config.file}`.replace(/\/+/g, '/')
-       : `/mascots/${config.file}`;
-    // 动态计算 base URL，适配 GitHub Pages 子路径部署
+
+  // 动态计算 base URL，适配 GitHub Pages 子路径部署
   const mascotSrc = import.meta.env.BASE_URL
     ? `${import.meta.env.BASE_URL}mascots/${config.file}`.replace(/\/+/g, '/')
     : `/mascots/${config.file}`;
+
   return (
     <div
       className="relative transition-all duration-[2000ms] ease-linear"
@@ -142,12 +142,11 @@ export default function MascotAvatar({ mascot, size = 96, onTalk }: Props) {
           className={`w-full h-full ${isBouncing ? 'animate-wiggle' : isWalking ? 'animate-walk' : 'animate-float'}`}
           style={{
             filter: 'drop-shadow(0 4px 8px rgba(217, 123, 159, 0.18))',
-             `src={mascotSrc}
+            transform: `scaleX(${direction})`,
           }}
         >
-          const mascotSrc = import.meta.env.BASE_URL
-  ? `${import.meta.env.BASE_URL}mascots/${config.file}`.replace(/\/+/g, '/')
-  : `/mascots/${config.file}`;
+          <img
+            src={mascotSrc}
             alt={config.name}
             className="w-full h-full object-contain"
             style={{
