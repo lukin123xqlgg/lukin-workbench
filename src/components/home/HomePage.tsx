@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Trash2, Plus, ChevronRight, Settings, Timer, CalendarCheck } from 'lucide-react';
+import { Plus, ChevronRight, Settings, Timer, CalendarCheck } from 'lucide-react';
 import SettingsPage from '../settings/SettingsPage';
 import { useExamStore } from '../../store/examStore';
 import { usePomodoroStore } from '../../store/pomodoroStore';
@@ -30,7 +30,6 @@ import {
 import { VoiceToText, VoiceRecorder, PhotoCapture } from '../common/VoiceRecorder';
 import { todayStr } from '../../hooks';
 
-// ===== 倒计时天数 =====
 function daysUntil(dateStr: string): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -39,15 +38,13 @@ function daysUntil(dateStr: string): number {
   return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-// ===== 格式化中文日期 =====
 function formatChineseDate(date: Date): string {
   const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 星期${weekdays[date.getDay()]}`;
 }
 
 export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => void }) {
-  // ===== Stores =====
-  const { exams, deleteExam, addExam } = useExamStore();
+  const { exams, addExam } = useExamStore();
   const sessions = usePomodoroStore((s) => s.sessions);
   const { getCheckin } = useCheckinStore();
   const { records: practiceRecords } = usePracticeStore();
@@ -58,7 +55,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
   const { mistakes } = useMistakeStore();
   const { mascot } = useThemeStore();
 
-  // ===== 今日数据 =====
   const today = todayStr();
   const todayCheckin = getCheckin(today);
   const todayStudyMinutes = todayCheckin
@@ -73,7 +69,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
 
   const todayPomodoroCount = sessions.filter((s) => s.date === today).length;
 
-  // ===== 考试数据 =====
   const sortedExams = useMemo(
     () =>
       [...exams].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
@@ -83,25 +78,19 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
     () => sortedExams.filter((e) => daysUntil(e.date) >= 0),
     [sortedExams]
   );
-  const nextExam = upcomingExams[0];
-  const topExams = upcomingExams.slice(0, 3);
 
-  // ===== 今日计划 =====
   const todayPlans = useMemo(
     () => plans.filter((p) => p.date === today).sort((a, b) => a.order - b.order).slice(0, 5),
     [plans, today]
   );
 
-  // ===== 今日复盘 =====
   const todayReviews = useMemo(
     () => reviews.filter((r) => r.date === today),
     [reviews, today]
   );
 
-  // ===== 最近错题 =====
   const recentMistakes = mistakes.slice(0, 3);
 
-  // ===== 复盘 BottomSheet =====
   const [reviewSheetOpen, setReviewSheetOpen] = useState(false);
   const [reviewSubject, setReviewSubject] = useState<SubjectId>(SUBJECTS[0].id);
   const [reviewQuestion, setReviewQuestion] = useState('');
@@ -135,121 +124,97 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
 
   return (
     <div className="min-h-screen pb-8">
-      {/* ===== 顶部欢迎栏 ===== */}
+      {/* ===== 顶部渐变区域：欢迎栏 + 倒计时 ===== */}
       <div
-        className="px-5 pt-10 pb-6"
+        className="px-5 pt-10 pb-6 rounded-b-3xl"
         style={{
-          background: 'linear-gradient(135deg, #FDE8F0 0%, #FBF3F6 50%, #F0EBF7 100%)',
+          background: 'linear-gradient(135deg, #C8A6D4 0%, #D9A0C4 30%, #E8A8B8 60%, #F0B8C8 100%)',
         }}
       >
+        {/* 欢迎栏 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MascotAvatar mascot={mascot} size={64} />
             <div>
-              <h1 className="text-2xl font-bold text-gray-800">lukin的工作台</h1>
-              <p className="text-sm text-gray-500 mt-1">{formatChineseDate(new Date())}</p>
+              <h1 className="text-2xl font-bold text-white">lukin的工作台</h1>
+              <p className="text-sm text-white/70 mt-1">{formatChineseDate(new Date())}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => onNavigate('timer' as any)}
-              className="w-9 h-9 rounded-full bg-white/60 flex items-center justify-center active:scale-90 transition"
+              className="w-9 h-9 rounded-full bg-white/30 flex items-center justify-center active:scale-90 transition"
             >
-              <Timer size={18} className="text-pink-400" />
+              <Timer size={18} className="text-white" />
             </button>
             <button
               onClick={() => onNavigate('checkin' as any)}
-              className="w-9 h-9 rounded-full bg-white/60 flex items-center justify-center active:scale-90 transition"
+              className="w-9 h-9 rounded-full bg-white/30 flex items-center justify-center active:scale-90 transition"
             >
-              <CalendarCheck size={18} className="text-purple-400" />
+              <CalendarCheck size={18} className="text-white" />
             </button>
             <button
               onClick={() => setSettingsOpen(true)}
-              className="w-9 h-9 rounded-full bg-white/60 flex items-center justify-center active:scale-90 transition"
+              className="w-9 h-9 rounded-full bg-white/30 flex items-center justify-center active:scale-90 transition"
             >
-              <Settings size={18} className="text-gray-500" />
+              <Settings size={18} className="text-white" />
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="px-5 space-y-4 -mt-2">
-        {/* ===== 考试倒计时卡片 ===== */}
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
-            <span>⏰</span>
-            <span>考试倒计时</span>
-          </h2>
+        {/* 日期 + 设置考试时间 */}
+        <div className="flex items-center justify-between mt-4 mb-3">
+          <div className="flex items-center gap-2 bg-white/20 rounded-full px-3 py-1.5">
+            <span className="text-lg">📅</span>
+            <span className="text-sm text-white font-medium">
+              {new Date().getFullYear()}年{new Date().getMonth() + 1}月{new Date().getDate()}日 星期{['日','一','二','三','四','五','六'][new Date().getDay()]}
+            </span>
+          </div>
           <button
             onClick={() => setExamModalOpen(true)}
-            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 text-white text-sm font-bold shadow-cute active:scale-95 transition flex items-center gap-1"
+            className="flex items-center gap-1 bg-white/20 rounded-full px-3 py-1.5 text-sm text-white font-medium active:scale-95 transition"
           >
-            <Plus size={14} /> 添加考试
+            <span>⏰</span> 设置考试时间 <span>✏️</span>
           </button>
         </div>
-        <Card className="gradient-bubble">
-          {nextExam ? (
-            <div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-gray-400 font-medium">
-                    {EXAM_TYPES[nextExam.type].emoji} {EXAM_TYPES[nextExam.type].name}
-                  </div>
-                  <div className="text-lg font-bold text-gray-800 mt-1">{nextExam.name}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold text-pink-500">
-                    {daysUntil(nextExam.date)}
-                  </div>
-                  <div className="text-xs text-gray-400">天后考试</div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-2">
-              <p className="text-gray-400 text-sm">暂无考试，点击上方"添加考试"～</p>
-            </div>
-          )}
-        </Card>
 
-        {/* ===== 考试列表 ===== */}
-        {topExams.length > 0 && (
-          <div className="space-y-2">
-            {topExams.map((exam) => {
-              const days = daysUntil(exam.date);
-              return (
-                <Card key={exam.id} className="flex items-center gap-3 !py-3">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                    style={{ backgroundColor: EXAM_TYPES[exam.type].color + '20' }}
-                  >
-                    {EXAM_TYPES[exam.type].emoji}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-bold text-gray-800 truncate">{exam.name}</div>
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      {exam.date}
+        {/* 三列考试倒计时 */}
+        <div className="grid grid-cols-3 gap-3">
+          {(['national', 'province', 'institution'] as ExamType[]).map((type) => {
+            const typeExams = upcomingExams.filter((e) => e.type === type);
+            const exam = typeExams[0];
+            const days = exam ? daysUntil(exam.date) : null;
+            return (
+              <div
+                key={type}
+                className="rounded-2xl p-3 text-center"
+                style={{
+                  background: 'rgba(255,255,255,0.25)',
+                  backdropFilter: 'blur(8px)',
+                }}
+              >
+                <div className="text-2xl mb-1">{EXAM_TYPES[type].emoji}</div>
+                <div className="text-xs text-white/80 font-medium">{EXAM_TYPES[type].name}</div>
+                {exam ? (
+                  <>
+                    <div className="text-2xl font-bold text-white mt-1">
+                      {days}<span className="text-sm font-normal">天</span>
                     </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-sm font-bold text-pink-500">{days}</div>
-                    <div className="text-[10px] text-gray-400">天</div>
-                  </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteExam(exam.id);
-                    }}
-                    className="w-7 h-7 rounded-full bg-red-50 flex items-center justify-center active:scale-90 transition flex-shrink-0"
-                  >
-                    <Trash2 size={14} className="text-red-400" />
-                  </button>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                    <div className="text-[10px] text-white/60 mt-0.5">{EXAM_TYPES[type].name}</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-lg font-bold text-white/60 mt-1">--</div>
+                    <div className="text-[10px] text-white/40 mt-0.5">未设置</div>
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
+      <div className="px-5 space-y-4 mt-4">
         {/* ===== 今日学习概览 ===== */}
         <div>
           <h2 className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
@@ -471,7 +436,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
         title="添加每日复盘"
       >
         <div className="space-y-4">
-          {/* 板块选择 */}
           <div>
             <label className="text-sm font-bold text-gray-700 mb-2 block">板块</label>
             <div className="flex gap-2 flex-wrap">
@@ -489,7 +453,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
             </div>
           </div>
 
-          {/* 题目 */}
           <div>
             <label className="text-sm font-bold text-gray-700 mb-2 block">题目</label>
             <Input
@@ -499,7 +462,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
             />
           </div>
 
-          {/* 答案 */}
           <div>
             <label className="text-sm font-bold text-gray-700 mb-2 block">答案</label>
             <Textarea
@@ -510,7 +472,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
             />
           </div>
 
-          {/* 知识点 */}
           <div>
             <label className="text-sm font-bold text-gray-700 mb-2 block">知识点与思考</label>
             <Textarea
@@ -521,7 +482,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
             />
           </div>
 
-          {/* 拍照 + 语音 */}
           <div>
             <label className="text-sm font-bold text-gray-700 mb-2 block">附件</label>
             <div className="flex gap-2 flex-wrap items-center">
@@ -545,7 +505,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
               />
             </div>
 
-            {/* 附件预览 */}
             {reviewAttachments.length > 0 && (
               <div className="flex gap-2 flex-wrap mt-3">
                 {reviewAttachments.map((att, i) => (
@@ -575,7 +534,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
             )}
           </div>
 
-          {/* 确认按钮 */}
           <Button
             onClick={handleAddReview}
             disabled={!reviewQuestion.trim()}
@@ -618,7 +576,6 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
   );
 }
 
-// ===== 添加考试弹窗组件 =====
 function ExamAddModal({ open, onClose, onAdd }: {
   open: boolean;
   onClose: () => void;
@@ -678,3 +635,6 @@ function ExamAddModal({ open, onClose, onAdd }: {
     </CenterModal>
   );
 }
+
+  
+
