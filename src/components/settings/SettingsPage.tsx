@@ -177,7 +177,11 @@ export default function SettingsPage() {
                 }`}
               >
                 <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/60 flex items-center justify-center">
-                  <img src={`/mascots/${m.file}`} alt={m.name} className="w-full h-full object-contain" />
+                  <img
+                    src={import.meta.env.BASE_URL ? `${import.meta.env.BASE_URL}mascots/${m.file}`.replace(/\/+/g, '/') : `/mascots/${m.file}`}
+                    alt={m.name}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <span className="text-xs font-medium text-gray-600">{m.name}</span>
               </button>
