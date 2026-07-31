@@ -139,8 +139,9 @@ export default function MascotAvatar({ mascot, size = 96, onTalk }: Props) {
             transform: `scaleX(${direction})`,
           }}
         >
-          <img
-            src={`/mascots/${config.file}`}
+          const mascotSrc = import.meta.env.BASE_URL
+  ? `${import.meta.env.BASE_URL}mascots/${config.file}`.replace(/\/+/g, '/')
+  : `/mascots/${config.file}`;
             alt={config.name}
             className="w-full h-full object-contain"
             style={{
