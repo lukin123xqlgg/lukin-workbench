@@ -176,7 +176,9 @@ export default function SettingsPage() {
                   isActive ? 'ring-2 ring-pink-400 bg-pink-50' : 'bg-gray-50'
                 }`}
               >
-                <div className="text-3xl">{m.emoji}</div>
+                <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/60 flex items-center justify-center">
+                  <img src={`/mascots/${m.file}`} alt={m.name} className="w-full h-full object-contain" />
+                </div>
                 <span className="text-xs font-medium text-gray-600">{m.name}</span>
               </button>
             );

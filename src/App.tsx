@@ -10,10 +10,11 @@ import CollectionPage from './components/collection/CollectionPage';
 import FinancePage from './components/finance/FinancePage';
 import TimerPage from './components/timer/TimerPage';
 import CheckinPage from './components/checkin/CheckinPage';
+import PetPage from './components/pet/PetPage';
 import { usePomodoroStore } from './store/pomodoroStore';
 import { useThemeStore, THEMES, getActiveFontColors } from './store/themeStore';
 
-type PageKey = TabKey | 'timer' | 'checkin';
+type PageKey = TabKey | 'timer' | 'checkin' | 'pet';
 
 function App() {
   const [activeTab, setActiveTab] = useState<PageKey>('home');
@@ -74,6 +75,8 @@ function App() {
         return <TimerPage />;
       case 'checkin':
         return <CheckinPage />;
+      case 'pet':
+        return <PetPage onBack={() => setActiveTab('home')} />;
       default:
         return <HomePage onNavigate={handleNavigate} />;
     }

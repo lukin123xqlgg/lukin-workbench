@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type ThemeName = 'pink' | 'mint' | 'sky' | 'lemon';
-export type Mascot = 'bear' | 'rabbit' | 'cat' | 'chick';
+export type Mascot = 'bear' | 'rabbit' | 'cat' | 'chick' | 'dog' | 'panda' | 'penguin';
 export type FontColorName = 'dark' | 'pink' | 'brown' | 'gray' | 'custom';
 
 export const THEMES: Record<ThemeName, {
@@ -46,11 +46,14 @@ export const FONT_COLORS: Record<Exclude<FontColorName, 'custom'>, { name: strin
   gray:   { name: '墨灰',   color: '#2D2D3A', soft: '#5D5D6A', preview: '#2D2D3A' },
 };
 
-export const MASCOTS: Record<Mascot, { name: string; emoji: string }> = {
-  bear:   { name: '小熊', emoji: '🐻' },
-  rabbit: { name: '小兔', emoji: '🐰' },
-  cat:    { name: '小猫', emoji: '🐱' },
-  chick:  { name: '小鸡', emoji: '🐥' },
+export const MASCOTS: Record<Mascot, { name: string; emoji: string; file: string }> = {
+  bear:    { name: '小熊',   emoji: '🐻', file: 'bear.png' },
+  rabbit:  { name: '小兔',   emoji: '🐰', file: 'rabbit.png' },
+  cat:     { name: '小猫',   emoji: '🐱', file: 'cat.png' },
+  chick:   { name: '小鸡',   emoji: '🐥', file: 'chick.png' },
+  dog:     { name: '小狗',   emoji: '🐶', file: 'dog.png' },
+  panda:   { name: '小熊猫', emoji: '🐼', file: 'panda.png' },
+  penguin: { name: '企鹅',   emoji: '🐧', file: 'penguin.png' },
 };
 
 interface ThemeState {
