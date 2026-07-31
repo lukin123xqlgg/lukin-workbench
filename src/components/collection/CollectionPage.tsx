@@ -12,14 +12,14 @@ const TABS: { id: CollectionType; name: string; emoji: string }[] = [
 ];
 
 const PRESET_NEWS = [
-  { title: '习近平出席重要会议并发表重要讲话', source: '人民网', url: 'http://politics.people.com.cn/' },
-  { title: '国务院常务会议研究部署稳增长措施', source: '新华网', url: 'http://www.xinhuanet.com/politics/' },
+  { title: '习近平出席重要会议并发表重要讲话', source: '人民网', url: 'https://www.people.com.cn/' },
+  { title: '国务院常务会议研究部署稳增长措施', source: '新华网', url: 'https://www.xinhuanet.com/politics/' },
   { title: '广东扎实推进高质量发展', source: '南方日报', url: 'https://www.nfnews.com/' },
-  { title: '全国两会聚焦民生热点问题', source: '人民网', url: 'http://politics.people.com.cn/' },
-  { title: '中央经济工作会议定调明年发展', source: '新华网', url: 'http://www.xinhuanet.com/' },
+  { title: '全国两会聚焦民生热点问题', source: '人民网', url: 'https://www.people.com.cn/' },
+  { title: '中央经济工作会议定调明年发展', source: '新华网', url: 'https://www.xinhuanet.com/' },
   { title: '乡村振兴战略持续推进', source: '央广网', url: 'https://www.cnr.cn/' },
   { title: '科技创新助力产业升级', source: '光明日报', url: 'https://www.gmw.cn/' },
-  { title: '生态文明建设取得新成效', source: '人民网', url: 'http://env.people.com.cn/' },
+  { title: '生态文明建设取得新成效', source: '人民网', url: 'https://env.people.com.cn/' },
 ];
 
 export default function CollectionPage() {
@@ -165,6 +165,14 @@ export default function CollectionPage() {
                   href={news.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => {
+                    // PWA standalone 模式下，直接 a 标签可能无法打开外部链接
+                    // 用 window.open 兜底
+                    if (window.matchMedia('(display-mode: standalone)').matches) {
+                      e.preventDefault();
+                      window.open(news.url, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
                   className="block bg-pink-50/50 rounded-xl p-3 active:scale-[0.98] transition group"
                 >
                   <div className="flex items-start justify-between gap-2">
