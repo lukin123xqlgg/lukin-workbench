@@ -144,7 +144,7 @@ export default function HomePage({ onNavigate }: { onNavigate: (tab: TabKey) => 
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <MascotAvatar mascot={mascot} size={56} />
+            <MascotAvatar mascot={mascot} size={64} />
             <div>
               <h1 className="text-2xl font-bold text-gray-800">lukin的工作台</h1>
               <p className="text-sm text-gray-500 mt-1">{formatChineseDate(new Date())}</p>
