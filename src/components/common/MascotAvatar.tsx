@@ -106,7 +106,10 @@ export default function MascotAvatar({ mascot, size = 96, onTalk }: Props) {
   };
 
   const config = MASCOT_CONFIG[mascot];
-
+    // 动态计算 base URL，适配 GitHub Pages 子路径部署
+  const mascotSrc = import.meta.env.BASE_URL
+    ? `${import.meta.env.BASE_URL}mascots/${config.file}`.replace(/\/+/g, '/')
+    : `/mascots/${config.file}`;
   return (
     <div
       className="relative transition-all duration-[2000ms] ease-linear"
@@ -136,7 +139,7 @@ export default function MascotAvatar({ mascot, size = 96, onTalk }: Props) {
           className={`w-full h-full ${isBouncing ? 'animate-wiggle' : isWalking ? 'animate-walk' : 'animate-float'}`}
           style={{
             filter: 'drop-shadow(0 4px 8px rgba(217, 123, 159, 0.18))',
-            transform: `scaleX(${direction})`,
+             `src={mascotSrc}
           }}
         >
           const mascotSrc = import.meta.env.BASE_URL
