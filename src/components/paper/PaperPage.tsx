@@ -185,9 +185,9 @@ export default function PaperPage() {
   }, [papers]);
 
   return (
-    <div className="min-h-screen bg-[#FBF3F6] pb-8">
+    <div className="min-h-screen pb-8" style={{ backgroundColor: 'var(--app-bg)' }}>
       {/* 顶部标题 */}
-      <div className="sticky top-0 z-30 bg-[#FBF3F6]/95 backdrop-blur-sm px-4 pt-4 pb-3">
+      <div className="sticky top-0 z-30 backdrop-blur-sm px-4 pt-4 pb-3" style={{ backgroundColor: 'var(--app-bg)', opacity: 0.95 }}>
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-gray-800">试卷分析 📝</h1>
           <Button variant="primary" size="sm" onClick={() => setSheetOpen(true)}>

@@ -114,9 +114,9 @@ export default function CollectionPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF3F6] pb-32">
+    <div className="min-h-screen pb-32" style={{ backgroundColor: 'var(--app-bg)' }}>
       {/* 顶部标题 + Tab */}
-      <div className="sticky top-0 z-30 bg-[#FBF3F6]/95 backdrop-blur-sm px-4 pt-4 pb-2">
+      <div className="sticky top-0 z-30 backdrop-blur-sm px-4 pt-4 pb-2" style={{ backgroundColor: 'var(--app-bg)', opacity: 0.95 }}>
         <div className="flex items-center justify-between mb-3">
           <h1 className="text-xl font-bold text-gray-800">积累 📚</h1>
           <button

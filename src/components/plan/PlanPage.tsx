@@ -45,9 +45,9 @@ export default function PlanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FBF3F6] pb-32">
+    <div className="min-h-screen pb-32" style={{ backgroundColor: 'var(--app-bg)' }}>
       {/* 日期切换 */}
-      <div className="sticky top-0 z-30 bg-[#FBF3F6]/95 backdrop-blur-sm px-4 pt-4 pb-3">
+      <div className="sticky top-0 z-30 backdrop-blur-sm px-4 pt-4 pb-3" style={{ backgroundColor: 'var(--app-bg)', opacity: 0.95 }}>
         <div className="flex items-center justify-between">
           <button
             onClick={() => shiftDate(-1)}

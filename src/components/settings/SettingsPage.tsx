@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Download, Upload, Info, Palette, Clock, Target } from 'lucide-react';
 import { useSettingsStore } from '../../store';
-import { useThemeStore, THEMES, MASCOTS, type ThemeName, type Mascot } from '../../store/themeStore';
+import { useThemeStore, THEMES, MASCOTS, FONT_COLORS, type ThemeName, type Mascot } from '../../store/themeStore';
 import { downloadBackup, importData } from '../../services/backup';
 import { Card, Button, Input } from '../common';
 import type { BackupData } from '../../services/backup';
 
 export default function SettingsPage() {
   const { settings, updateSettings } = useSettingsStore();
-  const { theme, mascot, setTheme, setMascot } = useThemeStore();
+  const { theme, mascot, fontColor, customFontColor, setTheme, setMascot, setFontColor, setCustomFontColor } = useThemeStore();
   const [importStatus, setImportStatus] = useState('');
 
   const handleExport = () => {
@@ -181,6 +181,45 @@ export default function SettingsPage() {
               </button>
             );
           })}
+        </div>
+
+        {/* 字体颜色选择 */}
+        <label className="text-sm text-gray-500 mb-2 block mt-4">选择字体颜色</label>
+        <div className="grid grid-cols-4 gap-3">
+          {(Object.keys(FONT_COLORS) as Array<keyof typeof FONT_COLORS>).map((key) => {
+            const f = FONT_COLORS[key];
+            const isActive = fontColor === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setFontColor(key)}
+                className={`flex flex-col items-center gap-1 p-2 rounded-2xl transition active:scale-95 ${
+                  isActive ? 'ring-2 ring-pink-400 bg-pink-50' : 'bg-gray-50'
+                }`}
+              >
+                <div
+                  className="w-8 h-8 rounded-full shadow-sm"
+                  style={{ backgroundColor: f.preview }}
+                />
+                <span className="text-xs font-medium text-gray-600">{f.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 自定义颜色 */}
+        <div className="mt-3 flex items-center gap-3">
+          <label className="text-xs text-gray-500">自定义颜色：</label>
+          <input
+            type="color"
+            value={customFontColor}
+            onChange={(e) => {
+              setCustomFontColor(e.target.value);
+              setFontColor('custom');
+            }}
+            className="w-10 h-10 rounded-lg cursor-pointer border border-gray-200"
+          />
+          <span className="text-xs text-gray-400">{customFontColor}</span>
         </div>
       </Card>
     </div>

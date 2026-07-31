@@ -11,7 +11,7 @@ import FinancePage from './components/finance/FinancePage';
 import TimerPage from './components/timer/TimerPage';
 import CheckinPage from './components/checkin/CheckinPage';
 import { usePomodoroStore } from './store/pomodoroStore';
-import { useThemeStore, THEMES } from './store/themeStore';
+import { useThemeStore, THEMES, getActiveFontColors } from './store/themeStore';
 
 type PageKey = TabKey | 'timer' | 'checkin';
 
@@ -19,6 +19,8 @@ function App() {
   const [activeTab, setActiveTab] = useState<PageKey>('home');
   const tick = usePomodoroStore((s) => s.tick);
   const theme = useThemeStore((s) => s.theme);
+  const fontColor = useThemeStore((s) => s.fontColor);
+  const customFontColor = useThemeStore((s) => s.customFontColor);
   const themeConfig = THEMES[theme];
 
   // 番茄钟计时 tick —— 全局运行
@@ -28,6 +30,25 @@ function App() {
     }, 1000);
     return () => clearInterval(interval);
   }, [tick]);
+
+  // 通过 CSS 变量动态注入主题色 + 字体颜色
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--app-bg', themeConfig.bg);
+    root.style.setProperty('--app-bg-light', themeConfig.light);
+    root.style.setProperty('--app-primary', themeConfig.primary);
+    root.style.setProperty('--app-secondary', themeConfig.secondary);
+    root.style.setProperty('--app-gradient', themeConfig.gradient);
+
+    const fontState = {
+      theme, fontColor, customFontColor,
+      mascot: 'bear', setTheme: () => {}, setMascot: () => {},
+      setFontColor: () => {}, setCustomFontColor: () => {},
+    } as any;
+    const { color, soft } = getActiveFontColors(fontState);
+    root.style.setProperty('--app-text', color);
+    root.style.setProperty('--app-text-soft', soft);
+  }, [theme, fontColor, customFontColor, themeConfig]);
 
   const handleNavigate = (tab: string) => {
     setActiveTab(tab as PageKey);
@@ -61,7 +82,7 @@ function App() {
   return (
     <div
       className="min-h-screen max-w-[480px] mx-auto relative transition-colors duration-300"
-      style={{ backgroundColor: themeConfig.bg }}
+      style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-text)' }}
     >
       <main
         className="min-h-screen"
