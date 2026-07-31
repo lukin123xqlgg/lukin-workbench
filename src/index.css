@@ -1,0 +1,187 @@
+@import "tailwindcss";
+
+/* ===== 马卡龙粉紫色系主题 ===== */
+@theme {
+  /* 主色：马卡龙粉紫 */
+  --color-macaron-pink: #E8A0BF;
+  --color-macaron-pink-deep: #D97B9F;
+  --color-macaron-pink-light: #FDE8F0;
+  --color-macaron-purple: #B9A7D9;
+  --color-macaron-purple-deep: #9B8AC4;
+  --color-macaron-purple-light: #F0EBF7;
+  --color-macaron-lilac: #C8B6E2;
+  --color-macaron-lilac-light: #F5F0FA;
+  --color-macaron-mint: #A8D8C9;
+  --color-macaron-mint-light: #E8F5F0;
+  --color-macaron-sky: #A5C9E8;
+  --color-macaron-sky-light: #EAF2FA;
+  --color-macaron-lemon: #F5D982;
+  --color-macaron-lemon-light: #FDF6E3;
+  --color-macaron-peach: #F5C0B8;
+  --color-macaron-peach-light: #FDEEEA;
+  --color-macaron-cream: #FFF8F3;
+  --color-macaron-bg: #FBF3F6;
+
+  /* 兼容旧变量名（pink 系列映射到马卡龙粉） */
+  --color-bubble-pink: #E8A0BF;
+  --color-bubble-pink-light: #FDE8F0;
+  --color-bubble-pink-dark: #D97B9F;
+
+  --font-rounded: 'Nunito', 'PingFang SC', -apple-system, sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Nunito', 'PingFang SC', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: #FBF3F6;
+  color: #5A4A52;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 允许 input/textarea 选择文本 */
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ===== 滚轴选择器 ===== */
+.wheel-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  font-size: 18px;
+  color: #BBA8B5;
+  transition: all 0.15s ease;
+}
+.wheel-item.active {
+  color: #D97B9F;
+  font-weight: 700;
+  font-size: 22px;
+}
+.wheel-container {
+  position: relative;
+  height: 200px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.wheel-container::-webkit-scrollbar { display: none; }
+.wheel-container > .wheel-item { scroll-snap-align: center; }
+.wheel-mask {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: rgba(232, 160, 191, 0.1);
+  border-top: 2px solid rgba(232, 160, 191, 0.25);
+  border-bottom: 2px solid rgba(232, 160, 191, 0.25);
+  pointer-events: none;
+  border-radius: 8px;
+}
+
+.timer-ring { transform: rotate(-90deg); }
+
+/* ===== 语音条波形动画 ===== */
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+.wave-bar { animation: wave 0.8s ease-in-out infinite; }
+
+/* ===== 马卡龙柔和阴影 ===== */
+.shadow-cute {
+  box-shadow: 0 4px 14px rgba(217, 123, 159, 0.12);
+}
+.shadow-cute-lg {
+  box-shadow: 0 8px 24px rgba(217, 123, 159, 0.15);
+}
+.shadow-purple-cute {
+  box-shadow: 0 4px 14px rgba(155, 138, 196, 0.15);
+}
+
+/* ===== 弹窗动画 ===== */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slide-up { animation: slideUp 0.3s ease-out; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in { animation: fadeIn 0.2s ease-out; }
+
+@keyframes popIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-pop-in { animation: popIn 0.3s ease-out; }
+
+/* ===== 渐变背景 ===== */
+.gradient-macaron {
+  background: linear-gradient(135deg, #FDE8F0 0%, #FBF3F6 40%, #F0EBF7 100%);
+}
+.gradient-pink-purple {
+  background: linear-gradient(135deg, #E8A0BF 0%, #B9A7D9 100%);
+}
+.gradient-soft-pink {
+  background: linear-gradient(135deg, #FDE8F0 0%, #FFF8F3 100%);
+}
+.gradient-soft-purple {
+  background: linear-gradient(135deg, #F0EBF7 0%, #FBF3F6 100%);
+}
+
+/* ===== 工具类 ===== */
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+.line-through-cute { position: relative; }
+.line-through-cute::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  background: #D97B9F;
+  border-radius: 2px;
+}
+
+/* Tailwind pink 映射到马卡龙粉 */
+@layer utilities {
+  .text-pink-400 { color: #E8A0BF; }
+  .text-pink-500 { color: #D97B9F; }
+  .text-pink-600 { color: #C5688A; }
+  .bg-pink-50 { background-color: #FDE8F0; }
+  .bg-pink-100 { background-color: #F9D4E2; }
+  .bg-pink-200 { background-color: #F0BFCE; }
+  .bg-pink-300 { background-color: #E8A0BF; }
+  .bg-pink-400 { background-color: #D97B9F; }
+  .bg-pink-500 { background-color: #C5688A; }
+  .border-pink-50 { border-color: #FDE8F0; }
+  .border-pink-100 { border-color: #F9D4E2; }
+  .border-pink-200 { border-color: #F0BFCE; }
+  .border-pink-300 { border-color: #E8A0BF; }
+  .from-pink-400 { --tw-gradient-from: #E8A0BF; }
+  .to-pink-500 { --tw-gradient-to: #D97B9F; }
+  .from-purple-400 { --tw-gradient-from: #B9A7D9; }
+  .to-purple-500 { --tw-gradient-to: #9B8AC4; }
+}
