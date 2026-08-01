@@ -20,6 +20,13 @@ import {
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
 
+// 日历格子里的每日学习总时长统一用小时显示（如 0.5h / 2h / 2.5h）
+function formatHours(minutes: number): string {
+  const h = minutes / 60;
+  const v = h >= 10 ? Math.round(h).toString() : h.toFixed(1).replace(/\.0$/, '');
+  return `${v}h`;
+}
+
 export default function CheckinPage() {
   const {
     getCheckin,
@@ -252,7 +259,7 @@ export default function CheckinPage() {
                   </div>
                   {hasRecord && (
                     <div className="text-[10px] text-pink-400 font-medium leading-tight mt-0.5 px-0.5 text-center truncate w-full">
-                      {formatDuration(totalMinutes)}
+                      {formatHours(totalMinutes)}
                     </div>
                   )}
                 </button>

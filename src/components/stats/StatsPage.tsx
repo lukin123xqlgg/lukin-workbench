@@ -8,7 +8,7 @@ import { Card, EmptyState } from '../common';
 import { formatDate, todayStr } from '../../hooks';
 import type { PracticeRecord, PomodoroSession, Checkin } from '../../types';
 
-type Period = 'week' | 'month' | 'year';
+type Period = 'day' | 'week' | 'month' | 'year';
 type ChartType = 'line' | 'bar' | 'pie';
 
 // 马卡龙色系
@@ -19,7 +19,12 @@ function getDateRange(period: Period): string[] {
   const today = new Date();
   const dates: string[] = [];
 
-  if (period === 'week') {
+  if (period === 'day') {
+    // 今天 24 个小时（key 为小时数字符串）
+    for (let h = 0; h < 24; h++) {
+      dates.push(h.toString());
+    }
+  } else if (period === 'week') {
     // 本周7天（周一到周日）
     const day = today.getDay();
     const monday = new Date(today);
@@ -51,7 +56,9 @@ function getDateRange(period: Period): string[] {
 
 // 获取日期标签
 function getDateLabel(dateStr: string, period: Period): string {
-  if (period === 'week') {
+  if (period === 'day') {
+    return `${parseInt(dateStr, 10)}时`;
+  } else if (period === 'week') {
     const d = new Date(dateStr);
     return `${d.getMonth() + 1}/${d.getDate()}`;
   } else if (period === 'month') {
@@ -76,15 +83,26 @@ export default function StatsPage() {
   // ===== 计算学习时长（按 date 聚合，分钟） =====
   const studyMinutesByDate = useMemo(() => {
     const map: Record<string, number> = {};
+    const today = todayStr();
 
     // pomodoro sessions: duration 秒 -> 分钟
     sessions.forEach((s: PomodoroSession) => {
-      const key = period === 'year' ? s.date.slice(0, 7) : s.date;
+      let key: string | null;
+      if (period === 'year') {
+        key = s.date.slice(0, 7);
+      } else if (period === 'day') {
+        // 只统计今天的会话，按开始小时聚合
+        key = s.date === today ? new Date(s.startedAt).getHours().toString() : null;
+      } else {
+        key = s.date;
+      }
+      if (key === null) return;
       map[key] = (map[key] || 0) + s.duration / 60;
     });
 
-    // checkins: manualDuration 分钟
+    // checkins: manualDuration 分钟（日视图下手动时长无小时信息，仅计入汇总）
     checkins.forEach((c: Checkin) => {
+      if (period === 'day') return;
       const key = period === 'year' ? c.date.slice(0, 7) : c.date;
       map[key] = (map[key] || 0) + c.manualDuration;
     });
@@ -94,16 +112,22 @@ export default function StatsPage() {
 
   // ===== 数据摘要 =====
   const summary = useMemo(() => {
-    const totalMinutes = dateRange.reduce((sum, date) => sum + (studyMinutesByDate[date] || 0), 0);
+    let totalMinutes = dateRange.reduce((sum, date) => sum + (studyMinutesByDate[date] || 0), 0);
+    // 日视图：加上今天手动记录的时长
+    if (period === 'day') {
+      const todayCheckin = checkins.find((c) => c.date === todayStr());
+      totalMinutes += todayCheckin?.manualDuration || 0;
+    }
     const totalHours = totalMinutes / 60;
 
     const studyDays = dateRange.filter((date) => (studyMinutesByDate[date] || 0) > 0).length;
 
-    const dayCount = period === 'week' ? 7 : period === 'month' ? dateRange.length : 12;
+    const dayCount = period === 'day' ? 1 : period === 'week' ? 7 : period === 'month' ? dateRange.length : 12;
     const avgMinutes = dayCount > 0 ? totalMinutes / dayCount : 0;
 
     // 做题统计（按 period 过滤）
     const filteredPractice = practiceRecords.filter((r) => {
+      if (period === 'day') return r.date === todayStr();
       if (period === 'week') return dateRange.includes(r.date);
       if (period === 'month') return dateRange.includes(r.date);
       // year: 同年
@@ -122,6 +146,14 @@ export default function StatsPage() {
       accuracy: accuracy.toFixed(1),
     };
   }, [dateRange, studyMinutesByDate, practiceRecords, period]);
+
+  // ===== 当前周期内的番茄钟会话（用于柱状图/饼图按周期过滤） =====
+  const periodSessions = useMemo(() => {
+    const today = todayStr();
+    if (period === 'day') return sessions.filter((s) => s.date === today);
+    if (period === 'year') return sessions.filter((s) => s.date.slice(0, 4) === today.slice(0, 4));
+    return sessions.filter((s) => dateRange.includes(s.date));
+  }, [sessions, period, dateRange]);
 
   // ===== 主图表 option =====
   const mainChartOption = useMemo(() => {
@@ -174,9 +206,9 @@ export default function StatsPage() {
     }
 
     if (chartType === 'bar') {
-      // 各板块累计学习时长（小时）
+      // 各板块累计学习时长（小时，按当前周期过滤）
       const subjectHours = SUBJECTS.map((s) => {
-        const totalSeconds = sessions
+        const totalSeconds = periodSessions
           .filter((sess) => sess.subject === s.id)
           .reduce((sum, sess) => sum + sess.duration, 0);
         return Number((totalSeconds / 3600).toFixed(2));
@@ -218,9 +250,9 @@ export default function StatsPage() {
       };
     }
 
-    // pie
+    // pie（按当前周期过滤）
     const subjectHours = SUBJECTS.map((s) => {
-      const totalSeconds = sessions
+      const totalSeconds = periodSessions
         .filter((sess) => sess.subject === s.id)
         .reduce((sum, sess) => sum + sess.duration, 0);
       return { name: s.name, value: Number((totalSeconds / 3600).toFixed(2)), color: s.color };
@@ -259,7 +291,7 @@ export default function StatsPage() {
         },
       ],
     };
-  }, [chartType, dateRange, period, studyMinutesByDate, sessions]);
+  }, [chartType, dateRange, period, studyMinutesByDate, periodSessions]);
 
   // ===== 做题统计：分板块正确率堆叠柱状图 =====
   const practiceChartOption = useMemo(() => {
@@ -337,6 +369,7 @@ export default function StatsPage() {
   }, [practiceRecords]);
 
   const periods: { key: Period; label: string }[] = [
+    { key: 'day', label: '日' },
     { key: 'week', label: '周' },
     { key: 'month', label: '月' },
     { key: 'year', label: '年' },

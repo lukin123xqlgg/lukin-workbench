@@ -68,12 +68,15 @@ export interface MistakePhotoNote {
 
 export interface Mistake extends BaseEntity {
   date: string;
-  subject: SubjectId;
+  subject: SubjectId;      // 大类
+  subCategory?: string;    // 小类（如：图形推理）
+  title?: string;          // 标题（如：三角形）
   question: string;
   myAnswer?: string;
   correctAnswer?: string;
   analysis?: string;
   knowledgePoint?: string;
+  note?: string;           // 备注（错因、知识点、解题思路...）
   attachments: (MistakeVoiceNote | MistakePhotoNote)[];
 }
 
@@ -141,6 +144,13 @@ export interface CollectionItem extends BaseEntity {
   order: number;          // 文件夹内顺序
   done: boolean;          // 是否已打卡
   doneDate?: string;      // 打卡日期
+  favorite?: boolean;     // 是否已收藏（收藏夹）
+}
+
+// ===== 笔记本 =====
+export interface NoteItem extends BaseEntity {
+  title: string;
+  content: string;
 }
 
 // 每日打卡量设置（每个文件夹每天打卡多少条）

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { PracticeRecord, Plan, Mistake, Review, Paper, DailyCheckpoint, FinanceRecord, UserSettings, CollectionItem, CollectionGoal } from '../types';
-import { genId } from '../config/constants';
+import type { PracticeRecord, Plan, Mistake, Review, Paper, DailyCheckpoint, FinanceRecord, UserSettings, CollectionItem, CollectionGoal, NoteItem } from '../types';
+import { genId, type SubjectId } from '../config/constants';
 
 // ===== 做题统计 =====
 interface PracticeState {
@@ -174,6 +174,7 @@ interface CollectionState {
   goals: CollectionGoal[];
   addItems: (items: Omit<CollectionItem, 'id' | 'createdAt' | 'updatedAt'>[]) => void;
   toggleItemDone: (id: string, date: string) => void;
+  toggleFavorite: (id: string) => void;
   deleteItem: (id: string) => void;
   deleteFolder: (folderName: string) => void;
   setGoal: (folderName: string, type: CollectionItem['type'], dailyGoal: number) => void;
@@ -201,6 +202,14 @@ export const useCollectionStore = create<CollectionState>()(
         items: s.items.map((it) =>
           it.id === id
             ? { ...it, done: !it.done, doneDate: !it.done ? date : undefined, updatedAt: new Date().toISOString() }
+            : it
+        ),
+      })),
+    toggleFavorite: (id) =>
+      set((s) => ({
+        items: s.items.map((it) =>
+          it.id === id
+            ? { ...it, favorite: !it.favorite, updatedAt: new Date().toISOString() }
             : it
         ),
       })),
@@ -243,3 +252,68 @@ export const useSettingsStore = create<SettingsState>()(
       set((s) => ({ settings: { ...s.settings, ...data } })),
   }), { name: 'lukin-settings' })
 );
+
+// ===== 笔记本 =====
+interface NoteState {
+  notes: NoteItem[];
+  addNote: (data: Omit<NoteItem, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateNote: (id: string, data: Partial<Omit<NoteItem, 'id' | 'createdAt'>>) => void;
+  deleteNote: (id: string) => void;
+}
+export const useNoteStore = create<NoteState>()(
+  persist((set) => ({
+    notes: [],
+    addNote: (data) =>
+      set((s) => ({
+        notes: [{ ...data, id: genId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }, ...s.notes],
+      })),
+    updateNote: (id, data) =>
+      set((s) => ({
+        notes: s.notes.map((n) => (n.id === id ? { ...n, ...data, updatedAt: new Date().toISOString() } : n)),
+      })),
+    deleteNote: (id) => set((s) => ({ notes: s.notes.filter((n) => n.id !== id) })),
+  }), { name: 'lukin-notes' })
+);
+
+// ===== 错题小类（分类管理） =====
+export const DEFAULT_SUBCATEGORIES: Record<SubjectId, string[]> = {
+  verbal:   ['逻辑填空', '片段阅读', '语句表达'],
+  logic:    ['图形推理', '定义判断', '类比推理', '逻辑判断'],
+  quantity: ['工程问题', '行程问题', '排列组合', '概率问题', '几何问题'],
+  data:     ['增长', '比重', '平均数', '倍数'],
+  politics: ['政治理论', '法律', '经济', '历史人文', '科技常识'],
+  essay:    ['归纳概括', '综合分析', '提出对策', '贯彻执行', '大作文'],
+  current:  ['国内时政', '国际时政'],
+  science:  ['数字推理', '数学运算', '科学推理'],
+};
+
+interface SubCategoryState {
+  custom: Partial<Record<SubjectId, string[]>>;   // 用户自定义小类（按大类 id）
+  addSubCategory: (subject: SubjectId, name: string) => void;
+  removeSubCategory: (subject: SubjectId, name: string) => void;
+}
+export const useSubCategoryStore = create<SubCategoryState>()(
+  persist((set) => ({
+    custom: {},
+    addSubCategory: (subject, name) =>
+      set((s) => {
+        const trimmed = name.trim();
+        if (!trimmed) return s;
+        const existing = s.custom[subject] || [];
+        if (existing.includes(trimmed) || DEFAULT_SUBCATEGORIES[subject].includes(trimmed)) return s;
+        return { custom: { ...s.custom, [subject]: [...existing, trimmed] } };
+      }),
+    removeSubCategory: (subject, name) =>
+      set((s) => ({
+        custom: {
+          ...s.custom,
+          [subject]: (s.custom[subject] || []).filter((n) => n !== name),
+        },
+      })),
+  }), { name: 'lukin-subcategories' })
+);
+
+// 获取某大类的全部小类（默认 + 自定义）
+export function getSubCategories(subject: SubjectId, custom: Partial<Record<SubjectId, string[]>>): string[] {
+  return [...DEFAULT_SUBCATEGORIES[subject], ...(custom[subject] || [])];
+}

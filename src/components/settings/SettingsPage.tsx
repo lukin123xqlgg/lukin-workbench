@@ -1,15 +1,29 @@
 import { useState } from 'react';
-import { Download, Upload, Info, Palette, Clock, Target } from 'lucide-react';
+import { Download, Upload, Info, Palette, Clock, Target, MessageCircleHeart, Trash2 } from 'lucide-react';
 import { useSettingsStore } from '../../store';
-import { useThemeStore, THEMES, MASCOTS, FONT_COLORS, type ThemeName, type Mascot } from '../../store/themeStore';
+import { useThemeStore, THEMES, MASCOTS, FONT_COLORS, type Mascot } from '../../store/themeStore';
+import { useQuoteStore } from '../common/MascotAvatar';
 import { downloadBackup, importData } from '../../services/backup';
 import { Card, Button, Input } from '../common';
 import type { BackupData } from '../../services/backup';
 
 export default function SettingsPage() {
   const { settings, updateSettings } = useSettingsStore();
-  const { theme, mascot, fontColor, customFontColor, setTheme, setMascot, setFontColor, setCustomFontColor } = useThemeStore();
+  const { theme, mascot, fontColor, customFontColor, customThemeColor, setTheme, setMascot, setFontColor, setCustomFontColor, setCustomThemeColor } = useThemeStore();
   const [importStatus, setImportStatus] = useState('');
+
+  // 鼓励的话自定义（按当前吉祥物分别设置）
+  const quotes = useQuoteStore((s) => s.quotes[mascot]);
+  const addQuote = useQuoteStore((s) => s.addQuote);
+  const removeQuote = useQuoteStore((s) => s.removeQuote);
+  const [newQuote, setNewQuote] = useState('');
+
+  const handleAddQuote = () => {
+    const text = newQuote.trim();
+    if (!text) return;
+    addQuote(mascot, text);
+    setNewQuote('');
+  };
 
   const handleExport = () => {
     downloadBackup();
@@ -140,7 +154,7 @@ export default function SettingsPage() {
 
         {/* 色系选择 */}
         <div className="grid grid-cols-4 gap-3 mb-4">
-          {(Object.keys(THEMES) as ThemeName[]).map((key) => {
+          {(Object.keys(THEMES) as Array<keyof typeof THEMES>).map((key) => {
             const t = THEMES[key];
             const isActive = theme === key;
             return (
@@ -160,6 +174,24 @@ export default function SettingsPage() {
               </button>
             );
           })}
+        </div>
+
+        {/* 自定义主题色 */}
+        <div className={`mb-4 flex items-center gap-3 p-2 rounded-2xl ${theme === 'custom' ? 'ring-2 ring-pink-400 bg-pink-50' : 'bg-gray-50'}`}>
+          <label className="text-xs text-gray-500 flex-shrink-0">自定义主题色：</label>
+          <input
+            type="color"
+            value={customThemeColor}
+            onChange={(e) => {
+              setCustomThemeColor(e.target.value);
+              setTheme('custom');
+            }}
+            className="w-10 h-10 rounded-lg cursor-pointer border border-gray-200"
+          />
+          <span className="text-xs text-gray-400">{customThemeColor}</span>
+          {theme === 'custom' && (
+            <span className="text-xs font-bold text-pink-500 ml-auto">使用中 ✓</span>
+          )}
         </div>
 
         {/* 吉祥物选择 */}
@@ -226,6 +258,61 @@ export default function SettingsPage() {
             className="w-10 h-10 rounded-lg cursor-pointer border border-gray-200"
           />
           <span className="text-xs text-gray-400">{customFontColor}</span>
+        </div>
+      </Card>
+
+      {/* 鼓励的话自定义 */}
+      <Card>
+        <div className="flex items-center gap-2 mb-3">
+          <MessageCircleHeart size={18} className="text-pink-400" />
+          <h3 className="font-bold text-gray-700">鼓励的话 💬</h3>
+        </div>
+        <p className="text-sm text-gray-500 mb-3">
+          点击首页的{MASCOTS[mascot].name}时，它会随机说出这些话并读给你听。当前为「{MASCOTS[mascot].emoji} {MASCOTS[mascot].name}」设置，切换吉祥物可分别自定义。
+        </p>
+
+        {/* 现有语录 */}
+        <div className="space-y-2 mb-3">
+          {quotes.length === 0 ? (
+            <p className="text-xs text-gray-400 bg-gray-50 rounded-xl p-3">
+              还没有语录，添加一句吧～没有语录时小动物就不会说话哦
+            </p>
+          ) : (
+            quotes.map((q, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-2 bg-pink-50/50 rounded-xl px-3 py-2"
+              >
+                <span className="flex-1 text-sm text-gray-600">{q}</span>
+                <button
+                  onClick={() => removeQuote(mascot, i)}
+                  className="p-1 rounded-lg hover:bg-red-50 active:scale-90 transition flex-shrink-0"
+                  aria-label="删除这句"
+                >
+                  <Trash2 size={14} className="text-red-300" />
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* 添加新语录 */}
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <Input
+              value={newQuote}
+              onChange={setNewQuote}
+              placeholder="写一句鼓励的话，如：今天也要加油呀！"
+            />
+          </div>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={handleAddQuote}
+            disabled={!newQuote.trim()}
+          >
+            添加
+          </Button>
         </div>
       </Card>
     </div>

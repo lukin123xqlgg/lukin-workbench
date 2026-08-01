@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { playMascotSound } from './mascotSound';
 
 // 扩展 mascot 类型：加入小狗、熊猫、企鹅
 export type MascotKey = 'bear' | 'rabbit' | 'cat' | 'chick' | 'dog' | 'panda' | 'penguin';
@@ -75,6 +76,9 @@ export default function MascotAvatar({ mascot, size = 96, onTalk }: Props) {
   const handleClick = useCallback(() => {
     setIsBouncing(true);
     setTimeout(() => setIsBouncing(false), 600);
+
+    // 播放小动物叫声
+    playMascotSound(mascot);
 
     const list = quotes.length > 0 ? quotes : [];
     if (list.length === 0) return;

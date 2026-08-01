@@ -12,7 +12,7 @@ import TimerPage from './components/timer/TimerPage';
 import CheckinPage from './components/checkin/CheckinPage';
 import PetPage from './components/pet/PetPage';
 import { usePomodoroStore } from './store/pomodoroStore';
-import { useThemeStore, THEMES, getActiveFontColors } from './store/themeStore';
+import { useThemeStore, getActiveTheme, getActiveFontColors } from './store/themeStore';
 
 type PageKey = TabKey | 'timer' | 'checkin' | 'pet';
 
@@ -22,7 +22,8 @@ function App() {
   const theme = useThemeStore((s) => s.theme);
   const fontColor = useThemeStore((s) => s.fontColor);
   const customFontColor = useThemeStore((s) => s.customFontColor);
-  const themeConfig = THEMES[theme];
+  const customThemeColor = useThemeStore((s) => s.customThemeColor);
+  const themeConfig = getActiveTheme({ theme, customThemeColor });
 
   // 番茄钟计时 tick —— 全局运行
   useEffect(() => {
@@ -68,7 +69,7 @@ function App() {
       case 'mistake':
         return <MistakePage />;
       case 'collection':
-        return <CollectionPage />;
+        return <CollectionPage onNavigate={handleNavigate} />;
       case 'finance':
         return <FinancePage />;
       case 'timer':

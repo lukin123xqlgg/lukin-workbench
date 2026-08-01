@@ -1,14 +1,55 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeName = 'pink' | 'mint' | 'sky' | 'lemon';
+export type ThemeName = 'pink' | 'mint' | 'sky' | 'lemon' | 'teal' | 'custom';
 export type Mascot = 'bear' | 'rabbit' | 'cat' | 'chick' | 'dog' | 'panda' | 'penguin';
 export type FontColorName = 'dark' | 'pink' | 'brown' | 'gray' | 'custom';
 
-export const THEMES: Record<ThemeName, {
+export interface ThemeConfig {
   name: string; emoji: string; primary: string; secondary: string;
   bg: string; light: string; gradient: string; text: string; textSoft: string;
-}> = {
+}
+
+// 颜色混合工具：把 hex 颜色与白色按比例混合（用于自定义主题生成浅色背景）
+function mixWithWhite(hex: string, ratio: number): string {
+  const m = hex.replace('#', '');
+  const r = parseInt(m.slice(0, 2), 16);
+  const g = parseInt(m.slice(2, 4), 16);
+  const b = parseInt(m.slice(4, 6), 16);
+  const mix = (c: number) => Math.round(c + (255 - c) * ratio);
+  const toHex = (n: number) => n.toString(16).padStart(2, '0');
+  return `#${toHex(mix(r))}${toHex(mix(g))}${toHex(mix(b))}`;
+}
+
+// 颜色调暗（用于自定义主题生成文字色）
+function darken(hex: string, ratio: number): string {
+  const m = hex.replace('#', '');
+  const r = parseInt(m.slice(0, 2), 16);
+  const g = parseInt(m.slice(2, 4), 16);
+  const b = parseInt(m.slice(4, 6), 16);
+  const dim = (c: number) => Math.round(c * (1 - ratio));
+  const toHex = (n: number) => n.toString(16).padStart(2, '0');
+  return `#${toHex(dim(r))}${toHex(dim(g))}${toHex(dim(b))}`;
+}
+
+// 根据用户自选颜色生成一整套主题
+export function buildCustomTheme(primary: string): ThemeConfig {
+  const secondary = mixWithWhite(primary, 0.25);
+  const light = mixWithWhite(primary, 0.86);
+  const bg = mixWithWhite(primary, 0.94);
+  return {
+    name: '自定义', emoji: '🎨',
+    primary,
+    secondary,
+    bg,
+    light,
+    gradient: `linear-gradient(135deg, ${light} 0%, ${bg} 50%, ${mixWithWhite(primary, 0.9)} 100%)`,
+    text: darken(primary, 0.45),
+    textSoft: mixWithWhite(darken(primary, 0.3), 0.35),
+  };
+}
+
+export const THEMES: Record<Exclude<ThemeName, 'custom'>, ThemeConfig> = {
   pink: {
     name: '马卡龙粉紫', emoji: '🌸',
     primary: '#E8A0BF', secondary: '#B9A7D9',
@@ -37,6 +78,13 @@ export const THEMES: Record<ThemeName, {
     gradient: 'linear-gradient(135deg, #FDF6E3 0%, #FDF9EF 50%, #FFF8E1 100%)',
     text: '#5A4E2A', textSoft: '#8A7E5A',
   },
+  teal: {
+    name: '海盐蓝绿', emoji: '🐬',
+    primary: '#5AAFAA', secondary: '#8FD0C8',
+    bg: '#F2FAF9', light: '#E3F4F2',
+    gradient: 'linear-gradient(135deg, #E3F4F2 0%, #F2FAF9 50%, #E0F0FA 100%)',
+    text: '#3A5250', textSoft: '#7A9290',
+  },
 };
 
 export const FONT_COLORS: Record<Exclude<FontColorName, 'custom'>, { name: string; color: string; soft: string; preview: string }> = {
@@ -61,10 +109,12 @@ interface ThemeState {
   mascot: Mascot;
   fontColor: FontColorName;
   customFontColor: string;
+  customThemeColor: string;
   setTheme: (t: ThemeName) => void;
   setMascot: (m: Mascot) => void;
   setFontColor: (f: FontColorName) => void;
   setCustomFontColor: (c: string) => void;
+  setCustomThemeColor: (c: string) => void;
 }
 
 export const useThemeStore = create<ThemeState>()(
@@ -74,14 +124,24 @@ export const useThemeStore = create<ThemeState>()(
       mascot: 'rabbit',
       fontColor: 'pink',
       customFontColor: '#7A4A5A',
+      customThemeColor: '#E8A0BF',
       setTheme: (theme) => set({ theme }),
       setMascot: (mascot) => set({ mascot }),
       setFontColor: (fontColor) => set({ fontColor }),
       setCustomFontColor: (customFontColor) => set({ customFontColor }),
+      setCustomThemeColor: (customThemeColor) => set({ customThemeColor }),
     }),
     { name: 'lukin-theme' }
   )
 );
+
+// 获取当前生效的主题配置（预设 + 自定义）
+export function getActiveTheme(state: Pick<ThemeState, 'theme' | 'customThemeColor'>): ThemeConfig {
+  if (state.theme === 'custom') {
+    return buildCustomTheme(state.customThemeColor);
+  }
+  return THEMES[state.theme];
+}
 
 // 获取当前应用的字体颜色
 export function getActiveFontColors(state: ThemeState): { color: string; soft: string } {

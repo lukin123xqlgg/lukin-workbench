@@ -6,6 +6,10 @@ import { VitePWA } from 'vite-plugin-pwa'
 // https://vite.dev/config/
 export default defineConfig({
   base: process.env.VITE_BASE || '/',
+  build: {
+    // 本地沙箱环境禁止删除目录，关闭自动清空（CI 为全新检出，无影响）
+    emptyOutDir: false,
+  },
   plugins: [
     react(),
     tailwindcss(),
